@@ -209,7 +209,17 @@ function timeLeft() {
     countTime = 60;
   }
 }
-// timeLeft();
+//render question
+function renderQuestion(currentQuestion) {
+  questionNumberElement.innerText = "Câu " + questions[currentQuestion].id;
+  questionBonusElement.innerText =
+    "Thưởng: " + questions[currentQuestion].score + "vnđ";
+  questionContentElement.innerText = questions[currentQuestion].question;
+  aAnswerElement.innerText = questions[currentQuestion].options.a;
+  bAnswerElement.innerText = questions[currentQuestion].options.b;
+  cAnswerElement.innerText = questions[currentQuestion].options.c;
+  dAnswerElement.innerText = questions[currentQuestion].options.d;
+}
 
 let renderTime;
 
@@ -219,8 +229,11 @@ const startBtn = document.querySelector(".start__btn");
 function start() {
   document.querySelector(".app").style.display = "block";
   document.querySelector(".start").style.display = "none";
-
+  total = 0;
+  currentQuestion = 0;
   renderTime = setInterval(timeLeft, 1000);
+  document.querySelector(".total-money").innerText = "Tổng: " + total + " vnđ";
+  renderQuestion(currentQuestion);
 }
 function exit() {
   const isExit = confirm("Bạn muốn thoát trò chơi không?");
@@ -228,13 +241,14 @@ function exit() {
     document.querySelector(".app").style.display = "none";
     document.querySelector(".start").style.display = "block";
     currentQuestion = 0;
+    total = 0;
     countTime = 60;
     timeElement.innerText = countTime;
     clearInterval(renderTime);
   }
 }
-exitBtn.addEventListener("click", exit);
 startBtn.addEventListener("click", start);
+exitBtn.addEventListener("click", exit);
 //
 //render question
 let questionNumberElement = document.querySelector(".question__number");
@@ -247,17 +261,6 @@ let cAnswerElement = document.querySelector("#c");
 let dAnswerElement = document.querySelector("#d");
 let answerElements = document.querySelectorAll(".answer__btn");
 
-//render question
-function renderQuestion(currentQuestion) {
-  questionNumberElement.innerText = "Câu " + questions[currentQuestion].id;
-  questionBonusElement.innerText =
-    "Thưởng: " + questions[currentQuestion].score + "vnđ";
-  questionContentElement.innerText = questions[currentQuestion].question;
-  aAnswerElement.innerText = questions[currentQuestion].options.a;
-  bAnswerElement.innerText = questions[currentQuestion].options.b;
-  cAnswerElement.innerText = questions[currentQuestion].options.c;
-  dAnswerElement.innerText = questions[currentQuestion].options.d;
-}
 renderQuestion(currentQuestion);
 //check answer
 for (let i = 0; i < answerElements.length; i++) {
