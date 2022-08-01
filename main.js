@@ -190,25 +190,17 @@ const questions = [
 ];
 let currentQuestion = 0;
 let total = 0;
-//render time
-let countTime = 60;
-let timeElement = document.querySelector(".time");
-function timeLeft() {
-  if (countTime > 0) {
-    timeElement.innerText = countTime;
-    countTime = countTime - 1;
-  }
-  if (countTime == 0) {
-    timeElement.innerText = 0;
-    setTimeout(function () {
-      // alert(`Hết thời gian - Bạn nhận được ${total} vnđ`);
-      alert(`Hết thời gian `);
-    }, 500);
-    currentQuestion = 0;
-    total = 0;
-    countTime = 60;
-  }
-}
+//Element
+let supportBtn = document.querySelector(".support__btn");
+let questionNumberElement = document.querySelector(".question__number");
+let questionBonusElement = document.querySelector(".question__bonus");
+let questionContentElement = document.querySelector(".question__content");
+
+let aAnswerElement = document.querySelector("#a");
+let bAnswerElement = document.querySelector("#b");
+let cAnswerElement = document.querySelector("#c");
+let dAnswerElement = document.querySelector("#d");
+let answerElements = document.querySelectorAll(".answer__btn");
 //render question
 function renderQuestion(currentQuestion) {
   questionNumberElement.innerText = "Câu " + questions[currentQuestion].id;
@@ -219,6 +211,42 @@ function renderQuestion(currentQuestion) {
   bAnswerElement.innerText = questions[currentQuestion].options.b;
   cAnswerElement.innerText = questions[currentQuestion].options.c;
   dAnswerElement.innerText = questions[currentQuestion].options.d;
+}
+//render time
+let countTime = 60;
+let timeElement = document.querySelector(".time");
+function timeLeft() {
+  if (countTime > 0) {
+    timeElement.innerText = countTime;
+    countTime = countTime - 1;
+  }
+  if (countTime == 0) {
+    timeElement.innerText = 0;
+
+    setTimeout(function () {
+      // alert(`Hết thời gian - Bạn nhận được ${total} vnđ`);
+      if (currentQuestion > 9) {
+        alert("Tiền bạn nhận được: " + total + " vnđ");
+      } else if (currentQuestion > 4) {
+        alert("Tiền bạn nhận được: " + total + " vnđ");
+      } else {
+        alert(`Hết thời gian `);
+      }
+      currentQuestion = 0;
+      total = 0;
+      countTime = 60;
+      document.querySelector(".total-money").innerText =
+        "Tổng: " + total + " vnđ";
+      renderQuestion(currentQuestion);
+      supportBtn.disabled = false;
+      supportBtn.style.cursor = "pointer";
+      if (document.querySelectorAll(".hidden")) {
+        document.querySelectorAll(".hidden").forEach((hidden) => {
+          hidden.classList.remove("hidden");
+        });
+      }
+    }, 500);
+  }
 }
 
 let renderTime;
@@ -231,11 +259,20 @@ function start() {
   document.querySelector(".start").style.display = "none";
   total = 0;
   currentQuestion = 0;
+  //setinterval time
   renderTime = setInterval(timeLeft, 1000);
   document.querySelector(".total-money").innerText = "Tổng: " + total + " vnđ";
+  supportBtn.disabled = false;
+  supportBtn.style.cursor = "pointer";
+  if (document.querySelectorAll(".hidden")) {
+    document.querySelectorAll(".hidden").forEach((hidden) => {
+      hidden.classList.remove("hidden");
+    });
+  }
   renderQuestion(currentQuestion);
 }
 function exit() {
+  startBtn.style.display = "block";
   const isExit = confirm("Bạn muốn thoát trò chơi không?");
   if (isExit == true) {
     document.querySelector(".app").style.display = "none";
@@ -247,19 +284,19 @@ function exit() {
     clearInterval(renderTime);
   }
 }
-startBtn.addEventListener("click", start);
+startBtn.addEventListener("click", function () {
+  if (confirm("Bạn đã sẵn sàng chưa?")) {
+    let audio = new Audio("./assets/audio/start.mp3");
+    audio.play();
+    startBtn.style.display = "none";
+    setTimeout(start, 13000);
+  }
+
+  // start;
+});
+
 exitBtn.addEventListener("click", exit);
 //
-//render question
-let questionNumberElement = document.querySelector(".question__number");
-let questionBonusElement = document.querySelector(".question__bonus");
-let questionContentElement = document.querySelector(".question__content");
-
-let aAnswerElement = document.querySelector("#a");
-let bAnswerElement = document.querySelector("#b");
-let cAnswerElement = document.querySelector("#c");
-let dAnswerElement = document.querySelector("#d");
-let answerElements = document.querySelectorAll(".answer__btn");
 
 renderQuestion(currentQuestion);
 //check answer
@@ -280,20 +317,33 @@ for (let i = 0; i < answerElements.length; i++) {
         total += questions[currentQuestion].score;
         currentQuestion += 1;
         countTime = 60;
+        if (document.querySelectorAll(".hidden")) {
+          document.querySelectorAll(".hidden").forEach((hidden) => {
+            hidden.classList.remove("hidden");
+          });
+        }
       } else {
         if (currentQuestion > 9) {
           alert("Tiền bạn nhận được: " + total + " vnđ");
           total = 0;
           currentQuestion = 0;
+          countTime = 60;
         } else if (currentQuestion > 4) {
           alert("Tiền bạn nhận được: " + total + " vnđ");
           total = 0;
           currentQuestion = 0;
+          countTime = 60;
         } else {
           alert("Trả lời sai! ");
           currentQuestion = 0;
           total = 0;
+          countTime = 60;
         }
+      }
+      if (document.querySelectorAll(".hidden")) {
+        document.querySelectorAll(".hidden").forEach((hidden) => {
+          hidden.classList.remove("hidden");
+        });
       }
     }
 
@@ -302,3 +352,25 @@ for (let i = 0; i < answerElements.length; i++) {
     renderQuestion(currentQuestion);
   });
 }
+
+//support click
+let answerAll = document.querySelectorAll(".answer");
+
+supportBtn.addEventListener("click", function () {
+  let { a, b, c, d } = questions[currentQuestion].options;
+
+  let answers = [a, b, c, d];
+  let wrongAnswers = answers.filter(
+    (answer) => answer != questions[currentQuestion].answer
+  );
+  console.log(wrongAnswers);
+  for (let i = 0; i < wrongAnswers.length - 1; i++) {
+    answerAll.forEach((answer) => {
+      if (wrongAnswers[i] == answer.textContent.trim()) {
+        answer.classList.add("hidden");
+      }
+    });
+  }
+  supportBtn.disabled = "true";
+  supportBtn.style.cursor = "not-allowed";
+});
