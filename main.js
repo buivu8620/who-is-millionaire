@@ -190,7 +190,7 @@ const questions = [
 ];
 let currentQuestion = 0;
 let total = 0;
-//Element
+//Elements
 let supportBtn = document.querySelector(".support__btn");
 let questionNumberElement = document.querySelector(".question__number");
 let questionBonusElement = document.querySelector(".question__bonus");
@@ -201,16 +201,29 @@ let bAnswerElement = document.querySelector("#b");
 let cAnswerElement = document.querySelector("#c");
 let dAnswerElement = document.querySelector("#d");
 let answerElements = document.querySelectorAll(".answer__btn");
+//format money
+function formatMoney(money) {
+  return money.toLocaleString();
+}
 //render question
 function renderQuestion(currentQuestion) {
   questionNumberElement.innerText = "Câu " + questions[currentQuestion].id;
   questionBonusElement.innerText =
-    "Thưởng: " + questions[currentQuestion].score + "vnđ";
+    "Thưởng: " + formatMoney(questions[currentQuestion].score) + " vnđ";
   questionContentElement.innerText = questions[currentQuestion].question;
   aAnswerElement.innerText = questions[currentQuestion].options.a;
   bAnswerElement.innerText = questions[currentQuestion].options.b;
   cAnswerElement.innerText = questions[currentQuestion].options.c;
   dAnswerElement.innerText = questions[currentQuestion].options.d;
+}
+//audio wrong, correct
+function wrongAudio() {
+  let audio = new Audio("./assets/audio/wrong.mp3");
+  audio.play();
+}
+function correctAudio() {
+  let audio = new Audio("./assets/audio/correct.mp3");
+  audio.play();
 }
 //render time
 let countTime = 60;
@@ -224,20 +237,20 @@ function timeLeft() {
     timeElement.innerText = 0;
 
     setTimeout(function () {
-      // alert(`Hết thời gian - Bạn nhận được ${total} vnđ`);
       if (currentQuestion > 9) {
-        alert("Tiền bạn nhận được: " + total + " vnđ");
+        alert("Tiền bạn nhận được: " + formatMoney(total) + " vnđ");
       } else if (currentQuestion > 4) {
-        alert("Tiền bạn nhận được: " + total + " vnđ");
+        alert("Tiền bạn nhận được: " + formatMoney(total) + " vnđ");
       } else {
         alert(`Hết thời gian `);
       }
       currentQuestion = 0;
       total = 0;
       countTime = 60;
+      exit();
       document.querySelector(".total-money").innerText =
         "Tổng: " + total + " vnđ";
-      renderQuestion(currentQuestion);
+      // renderQuestion(currentQuestion);
       supportBtn.disabled = false;
       supportBtn.style.cursor = "pointer";
       if (document.querySelectorAll(".hidden")) {
@@ -259,6 +272,7 @@ function start() {
   document.querySelector(".start").style.display = "none";
   total = 0;
   currentQuestion = 0;
+  countTime = 60;
   //setinterval time
   renderTime = setInterval(timeLeft, 1000);
   document.querySelector(".total-money").innerText = "Tổng: " + total + " vnđ";
@@ -273,47 +287,66 @@ function start() {
 }
 function exit() {
   startBtn.style.display = "block";
-  const isExit = confirm("Bạn muốn thoát trò chơi không?");
-  if (isExit == true) {
-    document.querySelector(".app").style.display = "none";
-    document.querySelector(".start").style.display = "block";
-    currentQuestion = 0;
-    total = 0;
-    countTime = 60;
-    timeElement.innerText = countTime;
-    clearInterval(renderTime);
-  }
+
+  document.querySelector(".app").style.display = "none";
+  document.querySelector(".start").style.display = "block";
+  currentQuestion = 0;
+  total = 0;
+  countTime = 60;
+  timeElement.innerText = countTime;
+  clearInterval(renderTime);
 }
+//click start
 startBtn.addEventListener("click", function () {
   if (confirm("Bạn đã sẵn sàng chưa?")) {
     let audio = new Audio("./assets/audio/start.mp3");
     audio.play();
     startBtn.style.display = "none";
-    setTimeout(start, 13000);
+    setTimeout(start, 14000);
   }
-
-  // start;
+});
+//click exit
+exitBtn.addEventListener("click", function () {
+  if (confirm("Bạn muốn thoát trò chơi không?")) {
+    exit();
+  }
 });
 
-exitBtn.addEventListener("click", exit);
-//
+//next question
+function nextQuestion() {
+  document.querySelector(".total-money").innerText =
+    "Tổng: " + formatMoney(total) + " vnđ";
+  renderQuestion(currentQuestion);
+  renderTime = setInterval(timeLeft, 1000);
+}
 
-renderQuestion(currentQuestion);
 //check answer
 for (let i = 0; i < answerElements.length; i++) {
   answerElements[i].addEventListener("click", function () {
+    if (document.querySelectorAll(".hidden")) {
+      document.querySelectorAll(".hidden").forEach((hidden) => {
+        hidden.classList.remove("hidden");
+      });
+    }
     if (currentQuestion == 14) {
       if (answerElements[i].textContent == questions[14].answer) {
         alert("You win - Bạn nhận được 424.200.000 vnđ");
+        correctAudio();
+        clearInterval(renderTime);
         total = 0;
         currentQuestion = 0;
       } else {
-        alert("Tiền bạn nhận được: " + total + " vnđ");
+        alert("Tiền bạn nhận được: " + formatMoney(total) + " vnđ");
+        wrongAudio();
+        clearInterval(renderTime);
         total = 0;
         currentQuestion = 0;
       }
     } else {
       if (answerElements[i].textContent == questions[currentQuestion].answer) {
+        alert("Câu trả lời đúng!");
+        correctAudio();
+        clearInterval(renderTime);
         total += questions[currentQuestion].score;
         currentQuestion += 1;
         countTime = 60;
@@ -324,32 +357,36 @@ for (let i = 0; i < answerElements.length; i++) {
         }
       } else {
         if (currentQuestion > 9) {
-          alert("Tiền bạn nhận được: " + total + " vnđ");
+          wrongAudio();
+          alert("Tiền bạn nhận được: " + formatMoney(total) + " vnđ");
+          clearInterval(renderTime);
+          setTimeout(exit, 5000);
           total = 0;
           currentQuestion = 0;
-          countTime = 60;
+          // countTime = 60;
+          exit();
         } else if (currentQuestion > 4) {
-          alert("Tiền bạn nhận được: " + total + " vnđ");
+          wrongAudio();
+          clearInterval(renderTime);
+          alert("Tiền bạn nhận được: " + formatMoney(total) + " vnđ");
+          setTimeout(exit, 5000);
           total = 0;
           currentQuestion = 0;
-          countTime = 60;
+          // countTime = 60;
+          exit();
         } else {
+          wrongAudio();
+          clearInterval(renderTime);
           alert("Trả lời sai! ");
+          setTimeout(exit, 5000);
           currentQuestion = 0;
           total = 0;
-          countTime = 60;
+          // countTime = 60;
+          // exit();
         }
       }
-      if (document.querySelectorAll(".hidden")) {
-        document.querySelectorAll(".hidden").forEach((hidden) => {
-          hidden.classList.remove("hidden");
-        });
-      }
     }
-
-    document.querySelector(".total-money").innerText =
-      "Tổng: " + total + " vnđ";
-    renderQuestion(currentQuestion);
+    setTimeout(nextQuestion, 7000);
   });
 }
 
@@ -363,7 +400,6 @@ supportBtn.addEventListener("click", function () {
   let wrongAnswers = answers.filter(
     (answer) => answer != questions[currentQuestion].answer
   );
-  console.log(wrongAnswers);
   for (let i = 0; i < wrongAnswers.length - 1; i++) {
     answerAll.forEach((answer) => {
       if (wrongAnswers[i] == answer.textContent.trim()) {
