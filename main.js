@@ -229,7 +229,7 @@ function correctAudio() {
 let countTime = 60;
 let timeElement = document.querySelector(".time");
 function timeLeft() {
-  console.log(countTime);
+  // console.log(countTime);
   if (countTime > 0) {
     timeElement.innerText = countTime;
     countTime = countTime - 1;
