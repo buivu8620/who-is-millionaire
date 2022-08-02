@@ -229,6 +229,7 @@ function correctAudio() {
 let countTime = 60;
 let timeElement = document.querySelector(".time");
 function timeLeft() {
+  console.log(countTime);
   if (countTime > 0) {
     timeElement.innerText = countTime;
     countTime = countTime - 1;
@@ -236,29 +237,26 @@ function timeLeft() {
   if (countTime == 0) {
     timeElement.innerText = 0;
 
-    setTimeout(function () {
-      if (currentQuestion > 9) {
-        alert("Tiền bạn nhận được: " + formatMoney(total) + " vnđ");
-      } else if (currentQuestion > 4) {
-        alert("Tiền bạn nhận được: " + formatMoney(total) + " vnđ");
-      } else {
-        alert(`Hết thời gian `);
-      }
-      currentQuestion = 0;
-      total = 0;
-      countTime = 60;
-      exit();
-      document.querySelector(".total-money").innerText =
-        "Tổng: " + total + " vnđ";
-      // renderQuestion(currentQuestion);
-      supportBtn.disabled = false;
-      supportBtn.style.cursor = "pointer";
-      if (document.querySelectorAll(".hidden")) {
-        document.querySelectorAll(".hidden").forEach((hidden) => {
-          hidden.classList.remove("hidden");
-        });
-      }
-    }, 500);
+    if (currentQuestion > 9) {
+      alert("Tiền bạn nhận được: " + formatMoney(total) + " vnđ");
+    } else if (currentQuestion > 4) {
+      alert("Tiền bạn nhận được: " + formatMoney(total) + " vnđ");
+    } else {
+      alert(`Hết thời gian `);
+    }
+    currentQuestion = 0;
+    total = 0;
+    exit();
+    document.querySelector(".total-money").innerText =
+      "Tổng: " + total + " vnđ";
+    // renderQuestion(currentQuestion);
+    supportBtn.disabled = false;
+    supportBtn.style.cursor = "pointer";
+    if (document.querySelectorAll(".hidden")) {
+      document.querySelectorAll(".hidden").forEach((hidden) => {
+        hidden.classList.remove("hidden");
+      });
+    }
   }
 }
 
@@ -285,6 +283,7 @@ function start() {
   }
   renderQuestion(currentQuestion);
 }
+//exit function
 function exit() {
   startBtn.style.display = "block";
 
@@ -292,7 +291,7 @@ function exit() {
   document.querySelector(".start").style.display = "block";
   currentQuestion = 0;
   total = 0;
-  countTime = 60;
+  // countTime = 0;
   timeElement.innerText = countTime;
   clearInterval(renderTime);
 }
@@ -355,6 +354,7 @@ for (let i = 0; i < answerElements.length; i++) {
             hidden.classList.remove("hidden");
           });
         }
+        setTimeout(nextQuestion, 7000);
       } else {
         if (currentQuestion > 9) {
           wrongAudio();
@@ -386,7 +386,6 @@ for (let i = 0; i < answerElements.length; i++) {
         }
       }
     }
-    setTimeout(nextQuestion, 7000);
   });
 }
 
